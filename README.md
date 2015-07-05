@@ -11,4 +11,4 @@ This is the source repository for the Pebble watchface "Digilog"
 
 
 #Credits
-Credits go to /r/thenextbigthing2 for the design idea
+Credits go to /u/thenextbigthing2 for the design idea
