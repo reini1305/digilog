@@ -7,7 +7,7 @@
   "sdkVersion": "3",
   "targetPlatforms": ["aplite"],
   "watchapp": {
-    "watchface": false
+    "watchface": true
   },
   "appKeys": {
     "dummy": 0
