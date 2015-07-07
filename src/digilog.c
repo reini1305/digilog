@@ -164,7 +164,12 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
       break;
   }
   
+#ifdef PBL_COLOR
+  GBitmap *fb = graphics_capture_frame_buffer_format(ctx,GBitmapFormat1Bit);
+#else
   GBitmap *fb = graphics_capture_frame_buffer(ctx);
+#endif
+  
   uint8_t *bitmap_data =  gbitmap_get_data(fb);
   int bytes_per_row = gbitmap_get_bytes_per_row(fb);
   uint8_t *bg_bitmap_data =  gbitmap_get_data(number_bitmap);
