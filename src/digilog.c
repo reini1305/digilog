@@ -29,22 +29,12 @@ static GPath* time_path;
 
 // set pixel color at given coordinates
 void set_pixel(uint8_t *bitmap_data, int bytes_per_row, int y, int x, uint8_t color) {
-  
-#ifdef PBL_COLOR
-  bitmap_data[y*bytes_per_row + x] = color; // in Basalt - simple set entire byte
-#else
   bitmap_data[y*bytes_per_row + x / 8] ^= (-color ^ bitmap_data[y*bytes_per_row + x / 8]) & (1 << (x % 8)); // in Aplite - set the bit
-#endif
 }
 
 // get pixel color at given coordinates
 uint8_t get_pixel(uint8_t *bitmap_data, int bytes_per_row, int y, int x) {
-  
-#ifdef PBL_COLOR
-  return bitmap_data[y*bytes_per_row + x]; // in Basalt - simple get entire byte
-#else
   return (bitmap_data[y*bytes_per_row + x / 8] >> (x % 8)) & 1; // in Aplite - get the bit
-#endif
 }
 
 
@@ -67,7 +57,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   {
     time_path = gpath_create(&QUINT1_PATH_INFO);
   }
-  else if(t->tm_min<24)
+  else if(t->tm_min<23)
   {
     time_path = gpath_create(&QUINT2_PATH_INFO);
   }
@@ -173,6 +163,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
     default:
       break;
   }
+  
   GBitmap *fb = graphics_capture_frame_buffer(ctx);
   uint8_t *bitmap_data =  gbitmap_get_data(fb);
   int bytes_per_row = gbitmap_get_bytes_per_row(fb);
@@ -182,15 +173,11 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   for (int y=0; y<168; y++) {
     for (int x=0; x<144; x++) {
       // we only want to set black pixels in the bitmap
-      GColor bmp_pixel = (GColor)get_pixel(bg_bitmap_data, bg_bytes_per_row, y, x);
-      if(gcolor_equal(bmp_pixel,GColorWhite))
+      uint8_t bmp_pixel = get_pixel(bg_bitmap_data, bg_bytes_per_row, y, x);
+      if(bmp_pixel==0)
       {
-        GColor fb_pixel = (GColor)get_pixel(bitmap_data, bytes_per_row, y, x);
-#ifdef PBL_COLOR
-        set_pixel(bitmap_data, bytes_per_row, y, x, gcolor_equal(fb_pixel,GColorWhite)? GColorBlackARGB8:GColorWhiteARGB8);
-#else
-        set_pixel(bitmap_data, bytes_per_row, y, x, gcolor_equal(fb_pixel,GColorWhite)? GColorBlack:GColorWhite);
-#endif
+        uint8_t fb_pixel = get_pixel(bitmap_data, bytes_per_row, y, x);
+        set_pixel(bitmap_data, bytes_per_row, y, x, fb_pixel? 0:1);
       }
     }
   }
