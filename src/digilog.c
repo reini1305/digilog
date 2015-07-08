@@ -27,15 +27,44 @@ static const GPathInfo QUINT5_PATH_INFO = {
 
 static GPath* time_path;
 
-// set pixel color at given coordinates
-void set_pixel(uint8_t *bitmap_data, int bytes_per_row, int y, int x, uint8_t color) {
-  bitmap_data[y*bytes_per_row + x / 8] ^= (-color ^ bitmap_data[y*bytes_per_row + x / 8]) & (1 << (x % 8)); // in Aplite - set the bit
-}
+// used to pass bimap info to get/set pixel accurately
+typedef struct {
+  uint8_t *bitmap_data;
+  int bytes_per_row;
+  GBitmapFormat bitmap_format;
+}  BitmapInfo;
 
-// get pixel color at given coordinates
-uint8_t get_pixel(uint8_t *bitmap_data, int bytes_per_row, int y, int x) {
-  return (bitmap_data[y*bytes_per_row + x / 8] >> (x % 8)) & 1; // in Aplite - get the bit
-}
+// set pixel color at given coordinates
+void set_pixel(BitmapInfo bitmap_info, int y, int x, uint8_t color) {
+  
+#ifdef PBL_PLATFORM_BASALT
+  if (bitmap_info.bitmap_format == GBitmapFormat1BitPalette) { // for 1bit palette bitmap on Basalt --- verify if it needs to be different
+    bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] ^= (-color ^ bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8]) & (1 << (x % 8));
+#else
+    if (bitmap_info.bitmap_format == GBitmapFormat1Bit) { // for 1 bit bitmap on Aplite  --- verify if it needs to be different
+      bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] ^= (-color ^ bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8]) & (1 << (x % 8));
+#endif
+    } else { // othersise (assuming GBitmapFormat8Bit) going byte-wise
+      bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x] = color;
+    }
+    
+  }
+  
+  // get pixel color at given coordinates
+  uint8_t get_pixel(BitmapInfo bitmap_info, int y, int x) {
+    
+#ifdef PBL_PLATFORM_BASALT
+    if (bitmap_info.bitmap_format == GBitmapFormat1BitPalette) { // for 1bit palette bitmap on Basalt shifting left to get correct bit
+      return (bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] << (x % 8)) & 128;
+#else
+      if (bitmap_info.bitmap_format == GBitmapFormat1Bit) { // for 1 bit bitmap on Aplite - shifting right to get bit
+        return (bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] >> (x % 8)) & 1;
+#endif
+      } else {  // othersise (assuming GBitmapFormat8Bit) going byte-wise
+        return bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x];
+      }
+      
+    }
 
 
 static void background_update_proc(Layer *layer, GContext *ctx) {
@@ -164,25 +193,29 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
       break;
   }
   
-#ifdef PBL_COLOR
-  GBitmap *fb = graphics_capture_frame_buffer_format(ctx,GBitmapFormat1Bit);
-#else
   GBitmap *fb = graphics_capture_frame_buffer(ctx);
-#endif
+  BitmapInfo bitmap_info;
+  bitmap_info.bitmap_data =  gbitmap_get_data(fb);
+  bitmap_info.bytes_per_row = gbitmap_get_bytes_per_row(fb);
+  bitmap_info.bitmap_format = gbitmap_get_format(fb);
   
-  uint8_t *bitmap_data =  gbitmap_get_data(fb);
-  int bytes_per_row = gbitmap_get_bytes_per_row(fb);
-  uint8_t *bg_bitmap_data =  gbitmap_get_data(number_bitmap);
-  int bg_bytes_per_row = gbitmap_get_bytes_per_row(number_bitmap);
+  BitmapInfo bg_bitmap_info;
+  bg_bitmap_info.bytes_per_row = gbitmap_get_bytes_per_row(number_bitmap);
+  bg_bitmap_info.bitmap_data =  gbitmap_get_data(number_bitmap);
+  bg_bitmap_info.bitmap_format = gbitmap_get_format(number_bitmap);
   
   for (int y=0; y<168; y++) {
     for (int x=0; x<144; x++) {
       // we only want to set black pixels in the bitmap
-      uint8_t bmp_pixel = get_pixel(bg_bitmap_data, bg_bytes_per_row, y, x);
+      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, y, x);
       if(bmp_pixel==0)
       {
-        uint8_t fb_pixel = get_pixel(bitmap_data, bytes_per_row, y, x);
-        set_pixel(bitmap_data, bytes_per_row, y, x, fb_pixel? 0:1);
+        uint8_t fb_pixel = get_pixel(bitmap_info, y, x);
+#ifdef PBL_COLOR
+        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?GColorBlack.argb:GColorWhite.argb);
+#else
+        set_pixel(bitmap_info, y, x, fb_pixel? 0:1);
+#endif
       }
     }
   }
