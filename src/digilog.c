@@ -77,8 +77,8 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   struct tm *t = localtime(&now);
   int32_t minute_angle = TRIG_MAX_ANGLE * t->tm_min / 60;
   GPoint minute_point = {
-    .x = (int16_t)(sin_lookup(minute_angle) * (int32_t)100 / TRIG_MAX_RATIO) + 72,
-    .y = (int16_t)(-cos_lookup(minute_angle) * (int32_t)100 / TRIG_MAX_RATIO) + 84,
+    .x = (int16_t)(sin_lookup(minute_angle) * (int32_t)150 / TRIG_MAX_RATIO) + 72,
+    .y = (int16_t)(-cos_lookup(minute_angle) * (int32_t)150 / TRIG_MAX_RATIO) + 84,
   };
 
   // select proper path
@@ -212,11 +212,18 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
       {
         uint8_t fb_pixel = get_pixel(bitmap_info, y, x);
 #ifdef PBL_COLOR
-        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?GColorBlack.argb:GColorWhite.argb);
+        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?GColorYellow.argb:GColorDarkGreen.argb);
 #else
         set_pixel(bitmap_info, y, x, fb_pixel? 0:1);
 #endif
       }
+#ifdef PBL_COLOR
+      else
+      {
+        uint8_t fb_pixel = get_pixel(bitmap_info, y, x);
+        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?GColorElectricBlue.argb:GColorBrilliantRose.argb);
+      }
+#endif
     }
   }
   
