@@ -3,9 +3,9 @@
   "shortName": "digilog",
   "longName": "Digilog",
   "companyName": "Christian Reinbacher",
-  "versionLabel": "1.0",
+  "versionLabel": "1.1",
   "sdkVersion": "3",
-  "targetPlatforms": ["aplite"],
+  "targetPlatforms": ["aplite", "basalt"],
   "watchapp": {
     "watchface": true
   },
