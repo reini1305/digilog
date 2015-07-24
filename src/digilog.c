@@ -1,5 +1,14 @@
 #include <pebble.h>
 
+#define BACK_ONE_KEY 0
+#define BACK_TWO_KEY 1
+#define NUMBER_ONE_KEY 2
+#define NUMBER_TWO_KEY 3
+
+#ifdef PBL_COLOR
+GColor8 colors[4];
+#endif
+
 static Layer *background_layer;
 static Window *window;
 static GBitmap *number_bitmap;

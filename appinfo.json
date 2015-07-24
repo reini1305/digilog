@@ -9,11 +9,17 @@
     "aplite",
     "basalt"
   ],
+  "capabilities": [
+                   "configurable"
+                   ],
   "watchapp": {
     "watchface": true
   },
   "appKeys": {
-    "dummy": 0
+    "backOne": 0,
+    "backTwo": 1,
+    "numberOne": 2,
+    "numberTwo": 3
   },
   "resources": {
     "media": [
