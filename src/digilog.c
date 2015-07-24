@@ -114,7 +114,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   {
     hour = hour%12;
     if(hour==0)
-      hour=1;
+      hour=12;
   }
   switch (hour) {
     case 0:
