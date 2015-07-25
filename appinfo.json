@@ -4,14 +4,14 @@
   "longName": "Digilog",
   "companyName": "Christian Reinbacher",
   "versionLabel": "1.4",
-  "sdkVersion": "4",
+  "sdkVersion": "3",
   "targetPlatforms": [
     "aplite",
     "basalt"
   ],
   "capabilities": [
-                   "configurable"
-                   ],
+    "configurable"
+  ],
   "watchapp": {
     "watchface": true
   },
