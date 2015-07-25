@@ -62,10 +62,10 @@ Pebble.addEventListener('webviewclosed', function(e) {
                         if (e.response) {
                         var options = JSON.parse(decodeURIComponent(unescape(e.response)));
                         console.log('options received from configuration: ' + JSON.stringify(options));
-                        NumberOne = options['background_one'];
-                        NumberTwo = options['background_two'];
-                        BackOne = options['number_one'];
-                        BackTwo = options['number_two'];
+                        NumberOne = options['number_one'];
+                        NumberTwo = options['number_two'];
+                        BackOne = options['background_one'];
+                        BackTwo = options['background_two'];
                         localStorage.setItem('NumberOne',NumberOne);
                         localStorage.setItem('NumberTwo',NumberTwo);
                         localStorage.setItem('BackOne',BackOne);
