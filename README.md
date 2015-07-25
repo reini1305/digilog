@@ -8,7 +8,8 @@ This is the source repository for the Pebble watchface "Digilog"
 #Screenshots
 <img src="https://raw.githubusercontent.com/reini1305/digilog/master/store/pebble-screenshot_2015-07-05_13-38-21.png"></img>
 <img src="https://raw.githubusercontent.com/reini1305/digilog/master/store/pebble-screenshot_2015-07-05_13-38-45.png"></img>
-<img src="https://raw.githubusercontent.com/reini1305/digilog/master/store/pebble-screenshot_2015-07-08_18-25-01.png"></img>
-
+<img src="https://raw.githubusercontent.com/reini1305/digilog/master/store/pebble-screenshot_2015-07-25_11-29-57.png"></img>
+<img src="https://raw.githubusercontent.com/reini1305/digilog/master/store/pebble-screenshot_2015-07-25_11-30-24.png"></img>
+<img src="https://raw.githubusercontent.com/reini1305/digilog/master/store/pebble-screenshot_2015-07-25_11-31-09.png"></img>
 #Credits
 Credits go to /u/thenextbigthing2 for the design idea and to Yuriy Galanter for the EffectLayer library: https://github.com/ygalanter/EffectLayer
