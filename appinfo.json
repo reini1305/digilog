@@ -3,8 +3,8 @@
   "shortName": "digilog",
   "longName": "Digilog",
   "companyName": "Christian Reinbacher",
-  "versionLabel": "1.3",
-  "sdkVersion": "3",
+  "versionLabel": "1.4",
+  "sdkVersion": "4",
   "targetPlatforms": [
     "aplite",
     "basalt"
