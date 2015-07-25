@@ -9,13 +9,14 @@ var BackTwo;
 var NumberOne;
 var NumberTwo;
 
-function sendConfig{
+function sendConfig(){
   var msg = {};
   msg.numberOne = parseInt("0x"+NumberOne);
   msg.numberTwo = parseInt("0x"+NumberTwo);
   msg.backOne = parseInt("0x"+BackOne);
   msg.backTwo = parseInt("0x"+BackTwo);
-  console.log(msg);
+  console.log("Sending new configuration");
+  console.log(msg.numberOne);
   Pebble.sendAppMessage(msg);
 }
 
@@ -65,7 +66,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
                         NumberTwo = options['background_two'];
                         BackOne = options['number_one'];
                         BackTwo = options['number_two'];
-                        //console.log("New option:")
                         localStorage.setItem('NumberOne',NumberOne);
                         localStorage.setItem('NumberTwo',NumberTwo);
                         localStorage.setItem('BackOne',BackOne);

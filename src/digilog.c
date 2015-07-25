@@ -75,6 +75,57 @@ void set_pixel(BitmapInfo bitmap_info, int y, int x, uint8_t color) {
       
     }
 
+static void in_received_handler(DictionaryIterator *iter, void *context) {
+#ifdef PBL_COLOR
+  Tuple* tuple = dict_find(iter, BACK_ONE_KEY);
+  if(tuple)
+  {
+    colors[0] = GColorFromHEX(tuple->value->int32);
+    persist_write_int(BACK_ONE_KEY,tuple->value->int32);
+  }
+  tuple = dict_find(iter, BACK_TWO_KEY);
+  if(tuple)
+  {
+    colors[1] = GColorFromHEX(tuple->value->int32);
+    persist_write_int(BACK_TWO_KEY,tuple->value->int32);
+  }
+  tuple = dict_find(iter, NUMBER_ONE_KEY);
+  if(tuple)
+  {
+    colors[2] = GColorFromHEX(tuple->value->int32);
+    persist_write_int(NUMBER_ONE_KEY,tuple->value->int32);
+  }
+  tuple = dict_find(iter, NUMBER_TWO_KEY);
+  if(tuple)
+  {
+    colors[3] = GColorFromHEX(tuple->value->int32);
+    persist_write_int(NUMBER_TWO_KEY,tuple->value->int32);
+  }
+  layer_mark_dirty(background_layer);
+#endif
+}
+
+static void loadcolors(void){
+#ifdef PBL_COLOR
+  colors[0] = persist_exists(NUMBER_ONE_KEY)? GColorFromHEX(persist_read_int(NUMBER_ONE_KEY)):GColorFromHEX(0x0000aa);
+  colors[1] = persist_exists(NUMBER_TWO_KEY)? GColorFromHEX(persist_read_int(NUMBER_TWO_KEY)):GColorFromHEX(0xffff55);
+  colors[2] = persist_exists(BACK_ONE_KEY)? GColorFromHEX(persist_read_int(BACK_ONE_KEY)):GColorFromHEX(0xffaaff);
+  colors[3] = persist_exists(BACK_TWO_KEY)? GColorFromHEX(persist_read_int(BACK_TWO_KEY)):GColorFromHEX(0x005555);
+#endif
+}
+
+static void in_dropped_handler(AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "App Message Dropped!");
+}
+
+
+static void app_message_init(void) {
+  // Register message handlers
+  app_message_register_inbox_received(in_received_handler);
+  app_message_register_inbox_dropped(in_dropped_handler);
+  // Init buffers
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+}
 
 static void background_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
@@ -221,7 +272,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
       {
         uint8_t fb_pixel = get_pixel(bitmap_info, y, x);
 #ifdef PBL_COLOR
-        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?GColorYellow.argb:GColorDarkGreen.argb);
+        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[1].argb:colors[0].argb);
 #else
         set_pixel(bitmap_info, y, x, fb_pixel? 0:1);
 #endif
@@ -230,7 +281,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
       else
       {
         uint8_t fb_pixel = get_pixel(bitmap_info, y, x);
-        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?GColorElectricBlue.argb:GColorBrilliantRose.argb);
+        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[3].argb:colors[2].argb);
       }
 #endif
     }
@@ -269,7 +320,8 @@ static void window_unload(Window *window) {
 }
 
 static void init(void) {
-  
+  app_message_init();
+  loadcolors();
   window = window_create();
   window_set_window_handlers(window, (WindowHandlers) {
     .load = window_load,
