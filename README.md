@@ -13,3 +13,5 @@ This is the source repository for the Pebble watchface "Digilog"
 <img src="https://raw.githubusercontent.com/reini1305/digilog/master/store/pebble_screenshot_2015-07-25_11-31-09.png"></img>
 #Credits
 Credits go to /u/thenextbigthing2 for the design idea and to Yuriy Galanter for the EffectLayer library: https://github.com/ygalanter/EffectLayer
+<br>
+The live preview is taken from https://github.com/NiVZ78/NiVZ78.github.io
