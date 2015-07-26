@@ -107,10 +107,10 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
 
 static void loadcolors(void){
 #ifdef PBL_COLOR
-  colors[0] = persist_exists(NUMBER_ONE_KEY)? GColorFromHEX(persist_read_int(NUMBER_ONE_KEY)):GColorFromHEX(0x0000aa);
-  colors[1] = persist_exists(NUMBER_TWO_KEY)? GColorFromHEX(persist_read_int(NUMBER_TWO_KEY)):GColorFromHEX(0xffff55);
-  colors[2] = persist_exists(BACK_ONE_KEY)? GColorFromHEX(persist_read_int(BACK_ONE_KEY)):GColorFromHEX(0xffaaff);
-  colors[3] = persist_exists(BACK_TWO_KEY)? GColorFromHEX(persist_read_int(BACK_TWO_KEY)):GColorFromHEX(0x005555);
+  colors[2] = persist_exists(NUMBER_ONE_KEY)? GColorFromHEX(persist_read_int(NUMBER_ONE_KEY)):GColorFromHEX(0x0000aa);
+  colors[3] = persist_exists(NUMBER_TWO_KEY)? GColorFromHEX(persist_read_int(NUMBER_TWO_KEY)):GColorFromHEX(0xffff55);
+  colors[0] = persist_exists(BACK_ONE_KEY)? GColorFromHEX(persist_read_int(BACK_ONE_KEY)):GColorFromHEX(0xffaaff);
+  colors[1] = persist_exists(BACK_TWO_KEY)? GColorFromHEX(persist_read_int(BACK_TWO_KEY)):GColorFromHEX(0x005555);
 #endif
 }
 
@@ -272,7 +272,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
       {
         uint8_t fb_pixel = get_pixel(bitmap_info, y, x);
 #ifdef PBL_COLOR
-        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[1].argb:colors[0].argb);
+        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[3].argb:colors[2].argb);
 #else
         set_pixel(bitmap_info, y, x, fb_pixel? 0:1);
 #endif
@@ -281,7 +281,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
       else
       {
         uint8_t fb_pixel = get_pixel(bitmap_info, y, x);
-        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[3].argb:colors[2].argb);
+        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[1].argb:colors[0].argb);
       }
 #endif
     }
