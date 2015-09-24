@@ -126,6 +126,17 @@ static void app_message_init(void) {
   // Init buffers
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
+    
+#ifdef PBL_PLATFORM_CHALK
+static int clamp(int value,int min,int max)
+{
+  if(value>max)
+  value=max;
+  if(value<min)
+  value=min;
+  return value;
+}
+#endif
 
 static void background_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
@@ -135,6 +146,8 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   // get current time
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
+  
+#ifdef PBL_RECT
   int32_t minute_angle = TRIG_MAX_ANGLE * t->tm_min / 60;
   GPoint minute_point = {
     .x = (int16_t)(sin_lookup(minute_angle) * (int32_t)150 / TRIG_MAX_RATIO) + 72,
@@ -167,6 +180,12 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   // draw path
   graphics_context_set_fill_color(ctx,GColorWhite);
   gpath_draw_filled(ctx,time_path);
+  
+#else
+  graphics_context_set_fill_color(ctx, GColorWhite);
+  graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, 89,
+                       DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE * t->tm_min / 60);
+#endif
   
   // draw custom bitmap on top
   uint8_t hour = t->tm_hour;
@@ -252,12 +271,9 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
     default:
       break;
   }
+
   
   GBitmap *fb = graphics_capture_frame_buffer(ctx);
-  BitmapInfo bitmap_info;
-  bitmap_info.bitmap_data =  gbitmap_get_data(fb);
-  bitmap_info.bytes_per_row = gbitmap_get_bytes_per_row(fb);
-  bitmap_info.bitmap_format = gbitmap_get_format(fb);
   
   BitmapInfo bg_bitmap_info;
   bg_bitmap_info.bytes_per_row = gbitmap_get_bytes_per_row(number_bitmap);
@@ -265,6 +281,8 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   bg_bitmap_info.bitmap_format = gbitmap_get_format(number_bitmap);
   
 #ifdef PBL_PLATFORM_CHALK
+  int8_t offset_x = 18;
+  int8_t offset_y = 6;
   // Write a value to all visible pixels
   for(int y = 0; y < bounds.size.h; y++) {
     // Get the min and max x values for this row
@@ -273,8 +291,8 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
     // Iterate over visible pixels in that row
     for(int x = info.min_x; x < info.max_x; x++) {
       //memset(&info.data[x], GColorBlack.argb, 1);
-      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, y, x);
-      uint8_t fb_pixel = &info.data[x];
+      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, clamp(y-offset_y,0,167), clamp(x-offset_x,0,143));
+      uint8_t fb_pixel = info.data[x];
       if(bmp_pixel==0)
         memset(&info.data[x],gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[3].argb:colors[2].argb,1);
       else
@@ -282,6 +300,11 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
     }
   }
 #else
+  BitmapInfo bitmap_info;
+  bitmap_info.bitmap_data =  gbitmap_get_data(fb);
+  bitmap_info.bytes_per_row = gbitmap_get_bytes_per_row(fb);
+  bitmap_info.bitmap_format = gbitmap_get_format(fb);
+  
   for (int y=0; y<168; y++) {
     for (int x=0; x<144; x++) {
       // we only want to set black pixels in the bitmap
