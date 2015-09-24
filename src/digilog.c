@@ -182,8 +182,9 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   gpath_draw_filled(ctx,time_path);
   
 #else
+  GRect frame = grect_inset(bounds, GEdgeInsets(-1));
   graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, 89,
+  graphics_fill_radial(ctx, frame, GOvalScaleModeFillCircle, 90,
                        DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE * t->tm_min / 60);
 #endif
   
