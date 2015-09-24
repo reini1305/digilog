@@ -46,7 +46,7 @@ typedef struct {
 // set pixel color at given coordinates
 void set_pixel(BitmapInfo bitmap_info, int y, int x, uint8_t color) {
   
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_PLATFORM_BASALT) || defined(PBL_PLATFORM_CHALK)
   if (bitmap_info.bitmap_format == GBitmapFormat1BitPalette) { // for 1bit palette bitmap on Basalt --- verify if it needs to be different
     bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] ^= (-color ^ bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8]) & (1 << (x % 8));
 #else
@@ -62,7 +62,7 @@ void set_pixel(BitmapInfo bitmap_info, int y, int x, uint8_t color) {
   // get pixel color at given coordinates
   uint8_t get_pixel(BitmapInfo bitmap_info, int y, int x) {
     
-#ifdef PBL_PLATFORM_BASALT
+#if defined(PBL_PLATFORM_BASALT) || defined(PBL_PLATFORM_CHALK)
     if (bitmap_info.bitmap_format == GBitmapFormat1BitPalette) { // for 1bit palette bitmap on Basalt shifting left to get correct bit
       return (bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] << (x % 8)) & 128;
 #else
@@ -264,6 +264,24 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   bg_bitmap_info.bitmap_data =  gbitmap_get_data(number_bitmap);
   bg_bitmap_info.bitmap_format = gbitmap_get_format(number_bitmap);
   
+#ifdef PBL_PLATFORM_CHALK
+  // Write a value to all visible pixels
+  for(int y = 0; y < bounds.size.h; y++) {
+    // Get the min and max x values for this row
+    GBitmapDataRowInfo info = gbitmap_get_data_row_info(fb, y);
+    
+    // Iterate over visible pixels in that row
+    for(int x = info.min_x; x < info.max_x; x++) {
+      //memset(&info.data[x], GColorBlack.argb, 1);
+      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, y, x);
+      uint8_t fb_pixel = &info.data[x];
+      if(bmp_pixel==0)
+        memset(&info.data[x],gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[3].argb:colors[2].argb,1);
+      else
+        memset(&info.data[x],gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[1].argb:colors[0].argb,1);
+    }
+  }
+#else
   for (int y=0; y<168; y++) {
     for (int x=0; x<144; x++) {
       // we only want to set black pixels in the bitmap
@@ -286,6 +304,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
 #endif
     }
   }
+#endif
   
   // release things
   graphics_release_frame_buffer(ctx, fb);
