@@ -126,17 +126,6 @@ static void app_message_init(void) {
   // Init buffers
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
-    
-#ifdef PBL_PLATFORM_CHALK
-static int clamp(int value,int min,int max)
-{
-  if(value>max)
-  value=max;
-  if(value<min)
-  value=min;
-  return value;
-}
-#endif
 
 static void background_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
@@ -182,9 +171,9 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   gpath_draw_filled(ctx,time_path);
   
 #else
-  GRect frame = grect_inset(bounds, GEdgeInsets(-1));
+  GRect frame = grect_inset(bounds, GEdgeInsets(-4));
   graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_radial(ctx, frame, GOvalScaleModeFillCircle, 90,
+  graphics_fill_radial(ctx, frame, GOvalScaleModeFillCircle, 94,
                        DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE * t->tm_min / 60);
 #endif
   
@@ -282,8 +271,6 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   bg_bitmap_info.bitmap_format = gbitmap_get_format(number_bitmap);
   
 #ifdef PBL_PLATFORM_CHALK
-  int8_t offset_x = 18;
-  int8_t offset_y = 6;
   // Write a value to all visible pixels
   for(int y = 0; y < bounds.size.h; y++) {
     // Get the min and max x values for this row
@@ -292,7 +279,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
     // Iterate over visible pixels in that row
     for(int x = info.min_x; x < info.max_x; x++) {
       //memset(&info.data[x], GColorBlack.argb, 1);
-      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, clamp(y-offset_y,0,167), clamp(x-offset_x,0,143));
+      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, y, x);
       uint8_t fb_pixel = info.data[x];
       if(bmp_pixel==0)
         memset(&info.data[x],gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[3].argb:colors[2].argb,1);
