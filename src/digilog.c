@@ -23,7 +23,7 @@ static const GPathInfo QUINT2_PATH_INFO = {
 };
 static const GPathInfo QUINT3_PATH_INFO = {
   .num_points = 5,
-  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}, {144, 168}, {0, 168}}
+  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}, {144, 168}, {-1, 168}}
 };
 static const GPathInfo QUINT4_PATH_INFO = {
   .num_points = 6,
@@ -136,7 +136,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
   
-#ifdef PBL_RECT
+#ifdef PBL_PLATFORM_APLITE
   int32_t minute_angle = TRIG_MAX_ANGLE * t->tm_min / 60;
   GPoint minute_point = {
     .x = (int16_t)(sin_lookup(minute_angle) * (int32_t)150 / TRIG_MAX_RATIO) + 72,
@@ -171,9 +171,9 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   gpath_draw_filled(ctx,time_path);
   
 #else
-  GRect frame = grect_inset(bounds, GEdgeInsets(-4));
+  GRect frame = grect_inset(bounds, GEdgeInsets(-40));
   graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_radial(ctx, frame, GOvalScaleModeFillCircle, 94,
+  graphics_fill_radial(ctx, frame, GOvalScaleModeFillCircle, 130,
                        DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE * t->tm_min / 60);
 #endif
   
