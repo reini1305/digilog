@@ -27,11 +27,11 @@ static const GPathInfo QUINT3_PATH_INFO = {
 };
 static const GPathInfo QUINT4_PATH_INFO = {
   .num_points = 6,
-  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}, {144, 168}, {-1, 168}, {-1, -1}}
+  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}, {144, 168}, {0, 168}, {0, -1}}
 };
 static const GPathInfo QUINT5_PATH_INFO = {
   .num_points = 7,
-  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}, {144, 168}, {-1, 168}, {-1, -1}, {70, 0}}
+  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}, {144, 168}, {-2, 168}, {-2, -1}, {70, 0}}
 };
 
 static GPath* time_path;
@@ -139,8 +139,8 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
 #ifdef PBL_RECT
   int32_t minute_angle = TRIG_MAX_ANGLE * t->tm_min / 60;
   GPoint minute_point = {
-    .x = (int16_t)(sin_lookup(minute_angle) * (int32_t)150 / TRIG_MAX_RATIO) + 72,
-    .y = (int16_t)(-cos_lookup(minute_angle) * (int32_t)150 / TRIG_MAX_RATIO) + 84,
+    .x = (int16_t)(sin_lookup(minute_angle) * (int32_t)160 / TRIG_MAX_RATIO) + 72,
+    .y = (int16_t)(-cos_lookup(minute_angle) * (int32_t)160 / TRIG_MAX_RATIO) + 84,
   };
 
   // select proper path
