@@ -13,29 +13,6 @@ static Layer *background_layer;
 static Window *window;
 static GBitmap *number_bitmap;
 
-static const GPathInfo QUINT1_PATH_INFO = {
-  .num_points = 3,
-  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}}
-};
-static const GPathInfo QUINT2_PATH_INFO = {
-  .num_points = 4,
-  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}, {144, 168}}
-};
-static const GPathInfo QUINT3_PATH_INFO = {
-  .num_points = 5,
-  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}, {144, 168}, {-1, 168}}
-};
-static const GPathInfo QUINT4_PATH_INFO = {
-  .num_points = 6,
-  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}, {144, 168}, {-1, 168}, {-1, -1}}
-};
-static const GPathInfo QUINT5_PATH_INFO = {
-  .num_points = 7,
-  .points = (GPoint []) {{72, 84}, {72, 0}, {144, 0}, {144, 168}, {-1, 168}, {-1, -1}, {70, 0}}
-};
-
-static GPath* time_path;
-
 // used to pass bimap info to get/set pixel accurately
 typedef struct {
   uint8_t *bitmap_data;
@@ -45,35 +22,23 @@ typedef struct {
 
 // set pixel color at given coordinates
 void set_pixel(BitmapInfo bitmap_info, int y, int x, uint8_t color) {
-  
-#if defined(PBL_PLATFORM_BASALT) || defined(PBL_PLATFORM_CHALK)
-  if (bitmap_info.bitmap_format == GBitmapFormat1BitPalette) { // for 1bit palette bitmap on Basalt --- verify if it needs to be different
+
+  if (bitmap_info.bitmap_format == GBitmapFormat1Bit) { // for 1 bit bitmap on Aplite  --- verify if it needs to be different
     bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] ^= (-color ^ bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8]) & (1 << (x % 8));
-#else
-    if (bitmap_info.bitmap_format == GBitmapFormat1Bit) { // for 1 bit bitmap on Aplite  --- verify if it needs to be different
-      bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] ^= (-color ^ bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8]) & (1 << (x % 8));
-#endif
-    } else { // othersise (assuming GBitmapFormat8Bit) going byte-wise
-      bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x] = color;
-    }
-    
+  } else { // othersise (assuming GBitmapFormat8Bit) going byte-wise
+    bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x] = color;
   }
+    
+}
   
   // get pixel color at given coordinates
   uint8_t get_pixel(BitmapInfo bitmap_info, int y, int x) {
-    
-#if defined(PBL_PLATFORM_BASALT) || defined(PBL_PLATFORM_CHALK)
-    if (bitmap_info.bitmap_format == GBitmapFormat1BitPalette) { // for 1bit palette bitmap on Basalt shifting left to get correct bit
-      return (bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] << (x % 8)) & 128;
-#else
-      if (bitmap_info.bitmap_format == GBitmapFormat1Bit) { // for 1 bit bitmap on Aplite - shifting right to get bit
-        return (bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] >> (x % 8)) & 1;
-#endif
-      } else {  // othersise (assuming GBitmapFormat8Bit) going byte-wise
-        return bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x];
-      }
-      
-    }
+  if (bitmap_info.bitmap_format == GBitmapFormat1Bit) { // for 1 bit bitmap on Aplite - shifting right to get bit
+    return (bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] >> (x % 8)) & 1;
+  } else {  // othersise (assuming GBitmapFormat8Bit) going byte-wise
+    return bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x];
+  }
+}
 
 static void in_received_handler(DictionaryIterator *iter, void *context) {
 #ifdef PBL_COLOR
@@ -136,46 +101,10 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
   
-#ifdef PBL_PLATFORM_APLITE
-  int32_t minute_angle = TRIG_MAX_ANGLE * t->tm_min / 60;
-  GPoint minute_point = {
-    .x = (int16_t)(sin_lookup(minute_angle) * (int32_t)150 / TRIG_MAX_RATIO) + 72,
-    .y = (int16_t)(-cos_lookup(minute_angle) * (int32_t)150 / TRIG_MAX_RATIO) + 84,
-  };
-
-  // select proper path
-  if(t->tm_min<6)
-  {
-    time_path = gpath_create(&QUINT1_PATH_INFO);
-  }
-  else if(t->tm_min<23)
-  {
-    time_path = gpath_create(&QUINT2_PATH_INFO);
-  }
-  else if(t->tm_min<36)
-  {
-    time_path = gpath_create(&QUINT3_PATH_INFO);
-  }
-  else if(t->tm_min<54)
-  {
-    time_path = gpath_create(&QUINT4_PATH_INFO);
-  }
-  else
-  {
-    time_path = gpath_create(&QUINT5_PATH_INFO);
-  }
-  time_path->points[time_path->num_points-1] = minute_point;
-  
-  // draw path
-  graphics_context_set_fill_color(ctx,GColorWhite);
-  gpath_draw_filled(ctx,time_path);
-  
-#else
   GRect frame = grect_inset(bounds, GEdgeInsets(-40));
   graphics_context_set_fill_color(ctx, GColorWhite);
   graphics_fill_radial(ctx, frame, GOvalScaleModeFillCircle, 130,
                        DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE * t->tm_min / 60);
-#endif
   
   // draw custom bitmap on top
   uint8_t hour = t->tm_hour;
@@ -320,7 +249,6 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   // release things
   graphics_release_frame_buffer(ctx, fb);
   gbitmap_destroy(number_bitmap);
-  gpath_destroy(time_path);
 }
 
 
