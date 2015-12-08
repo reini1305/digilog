@@ -286,9 +286,6 @@ static void init(void) {
     .unload = window_unload,
   });
   
-#ifdef PBL_SDK_2
-  window_set_fullscreen(window,true);
-#endif
   // Push the window onto the stack
   const bool animated = true;
   window_stack_push(window, animated);
