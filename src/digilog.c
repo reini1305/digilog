@@ -89,7 +89,7 @@ static void app_message_init(void) {
   app_message_register_inbox_received(in_received_handler);
   app_message_register_inbox_dropped(in_dropped_handler);
   // Init buffers
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  app_message_open(100, 100);
 }
 
 static void background_update_proc(Layer *layer, GContext *ctx) {
