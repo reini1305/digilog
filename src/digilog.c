@@ -1,5 +1,5 @@
 #include <pebble.h>
-
+#include "nightstand.h"
 #define BACK_ONE_KEY 0
 #define BACK_TWO_KEY 1
 #define NUMBER_ONE_KEY 2
@@ -253,7 +253,8 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
 
 
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
-  layer_mark_dirty(background_layer);
+  if(!nightstand_window_update())
+    layer_mark_dirty(background_layer);
 }
 
 static void window_load(Window *window) {
@@ -285,6 +286,7 @@ static void init(void) {
     .load = window_load,
     .unload = window_unload,
   });
+  nightstand_window_init();
   
   // Push the window onto the stack
   const bool animated = true;
@@ -294,6 +296,7 @@ static void init(void) {
 
 static void deinit(void) {
   window_destroy(window);
+  nightstand_window_deinit();
 }
 
 
