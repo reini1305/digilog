@@ -12,6 +12,7 @@ GColor8 colors[4];
 static Layer *background_layer;
 static Window *window;
 static GBitmap *number_bitmap;
+static uint32_t resources[]={RESOURCE_ID_IMAGE_0,RESOURCE_ID_IMAGE_1,RESOURCE_ID_IMAGE_2,RESOURCE_ID_IMAGE_3,RESOURCE_ID_IMAGE_4,RESOURCE_ID_IMAGE_5,RESOURCE_ID_IMAGE_6,RESOURCE_ID_IMAGE_7,RESOURCE_ID_IMAGE_8,RESOURCE_ID_IMAGE_9,RESOURCE_ID_IMAGE_10,RESOURCE_ID_IMAGE_11,RESOURCE_ID_IMAGE_12,RESOURCE_ID_IMAGE_13,RESOURCE_ID_IMAGE_14,RESOURCE_ID_IMAGE_15,RESOURCE_ID_IMAGE_16,RESOURCE_ID_IMAGE_17,RESOURCE_ID_IMAGE_18,RESOURCE_ID_IMAGE_19,RESOURCE_ID_IMAGE_20,RESOURCE_ID_IMAGE_21,RESOURCE_ID_IMAGE_22,RESOURCE_ID_IMAGE_23};
 
 // used to pass bimap info to get/set pixel accurately
 typedef struct {
@@ -114,83 +115,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
     if(hour==0)
       hour=12;
   }
-  switch (hour) {
-    case 0:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_0);
-      break;
-    case 1:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_1);
-      break;
-    case 2:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_2);
-      break;
-    case 3:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_3);
-      break;
-    case 4:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_4);
-      break;
-    case 5:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_5);
-      break;
-    case 6:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_6);
-      break;
-    case 7:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_7);
-      break;
-    case 8:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_8);
-      break;
-    case 9:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_9);
-      break;
-    case 10:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_10);
-      break;
-    case 11:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_11);
-      break;
-    case 12:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_12);
-      break;
-    case 13:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_13);
-      break;
-    case 14:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_14);
-      break;
-    case 15:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_15);
-      break;
-    case 16:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_16);
-      break;
-    case 17:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_17);
-      break;
-    case 18:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_18);
-      break;
-    case 19:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_19);
-      break;
-    case 20:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_20);
-      break;
-    case 21:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_21);
-      break;
-    case 22:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_22);
-      break;
-    case 23:
-      number_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_23);
-      break;
-    default:
-      break;
-  }
-
+  number_bitmap = gbitmap_create_with_resource(resources[hour]);
   
   GBitmap *fb = graphics_capture_frame_buffer(ctx);
   
