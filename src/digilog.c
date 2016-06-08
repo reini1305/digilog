@@ -25,7 +25,7 @@ typedef struct {
 }  BitmapInfo;
 
 // set pixel color at given coordinates
-void set_pixel(BitmapInfo bitmap_info, int y, int x, uint8_t color) {
+void prv_set_pixel(BitmapInfo bitmap_info, int y, int x, uint8_t color) {
 
   if (bitmap_info.bitmap_format == GBitmapFormat1Bit) { // for 1 bit bitmap on Aplite  --- verify if it needs to be different
     bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] ^= (-color ^ bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8]) & (1 << (x % 8));
@@ -36,7 +36,7 @@ void set_pixel(BitmapInfo bitmap_info, int y, int x, uint8_t color) {
 }
   
   // get pixel color at given coordinates
-  uint8_t get_pixel(BitmapInfo bitmap_info, int y, int x) {
+  uint8_t prv_get_pixel(BitmapInfo bitmap_info, int y, int x) {
   if (bitmap_info.bitmap_format == GBitmapFormat1Bit) { // for 1 bit bitmap on Aplite - shifting right to get bit
     return (bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x / 8] >> (x % 8)) & 1;
   } else {  // othersise (assuming GBitmapFormat8Bit) going byte-wise
@@ -143,7 +143,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
     // Iterate over visible pixels in that row
     for(int x = info.min_x; x < info.max_x; x++) {
       //memset(&info.data[x], GColorBlack.argb, 1);
-      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, y, x);
+      uint8_t bmp_pixel = prv_get_pixel(bg_bitmap_info, y, x);
       uint8_t fb_pixel = info.data[x];
       if(bmp_pixel==0)
         memset(&info.data[x],gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[3].argb:colors[2].argb,1);
@@ -160,21 +160,21 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   for (int y=0; y<168; y++) {
     for (int x=0; x<144; x++) {
       // we only want to set black pixels in the bitmap
-      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, y, x);
+      uint8_t bmp_pixel = prv_get_pixel(bg_bitmap_info, y, x);
       if(bmp_pixel==0)
       {
-        uint8_t fb_pixel = get_pixel(bitmap_info, y, x);
+        uint8_t fb_pixel = prv_get_pixel(bitmap_info, y, x);
 #ifdef PBL_COLOR
-        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[3].argb:colors[2].argb);
+        prv_set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[3].argb:colors[2].argb);
 #else
-        set_pixel(bitmap_info, y, x, fb_pixel? 0:1);
+        prv_set_pixel(bitmap_info, y, x, fb_pixel? 0:1);
 #endif
       }
 #ifdef PBL_COLOR
       else
       {
-        uint8_t fb_pixel = get_pixel(bitmap_info, y, x);
-        set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[1].argb:colors[0].argb);
+        uint8_t fb_pixel = prv_get_pixel(bitmap_info, y, x);
+        prv_set_pixel(bitmap_info, y, x, gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[1].argb:colors[0].argb);
       }
 #endif
     }
