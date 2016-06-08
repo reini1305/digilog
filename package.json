@@ -3,7 +3,7 @@
   "author": "Christian Reinbacher",
   "private": true,
   "dependencies": {
-    "nightstand": "file:///Users/reini/Documents/workdir/pebble/nightstand_library"
+    "nightstand": "^1.0.0"
   },
   "keywords": [
     "pebble-app"
