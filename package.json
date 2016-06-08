@@ -1,0 +1,186 @@
+{
+  "version": "1.13.0",
+  "author": "Christian Reinbacher",
+  "private": true,
+  "dependencies": {
+    "nightstand": "file:///Users/reini/Documents/workdir/pebble/nightstand_library"
+  },
+  "keywords": [
+    "pebble-app"
+  ],
+  "pebble": {
+    "sdkVersion": "3",
+    "resources": {
+      "media": [
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_0",
+          "file": "images/0.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_1",
+          "file": "images/1.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_2",
+          "file": "images/2.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_3",
+          "file": "images/3.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_4",
+          "file": "images/4.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_5",
+          "file": "images/5.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_6",
+          "file": "images/6.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_7",
+          "file": "images/7.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_8",
+          "file": "images/8.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_9",
+          "file": "images/9.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_10",
+          "file": "images/10.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_11",
+          "file": "images/11.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_12",
+          "file": "images/12.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_13",
+          "file": "images/13.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_14",
+          "file": "images/14.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_15",
+          "file": "images/15.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_16",
+          "file": "images/16.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_17",
+          "file": "images/17.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_18",
+          "file": "images/18.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_19",
+          "file": "images/19.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_20",
+          "file": "images/20.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_21",
+          "file": "images/21.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_22",
+          "file": "images/22.png"
+        },
+        {
+          "memoryFormat": "1Bit",
+          "type": "bitmap",
+          "name": "IMAGE_23",
+          "file": "images/23.png"
+        }
+      ]
+    },
+    "projectType": "native",
+    "uuid": "5308167e-cf19-419d-bace-bf2ca0c78669",
+    "messageKeys": {
+      "numberOne": 2,
+      "backOne": 0,
+      "numberTwo": 3,
+      "backTwo": 1
+    },
+    "enableMultiJS": false,
+    "displayName": "Digilog",
+    "watchapp": {
+      "onlyShownOnCommunication": false,
+      "hiddenApp": false,
+      "watchface": true
+    },
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk"
+    ],
+    "capabilities": [
+      "configurable"
+    ]
+  },
+  "name": "digilog"
+}

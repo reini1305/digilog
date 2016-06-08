@@ -1,5 +1,5 @@
 #include <pebble.h>
-#include "nightstand.h"
+#include <nightstand/nightstand.h>
 #define BACK_ONE_KEY 0
 #define BACK_TWO_KEY 1
 #define NUMBER_ONE_KEY 2
@@ -12,6 +12,9 @@ GColor8 colors[4];
 static Layer *background_layer;
 static Window *window;
 static GBitmap *number_bitmap;
+static Animation *s_animation;
+static int16_t s_hour, s_minute, s_last_hour;
+static int16_t s_animation_percent;
 static uint32_t resources[]={RESOURCE_ID_IMAGE_0,RESOURCE_ID_IMAGE_1,RESOURCE_ID_IMAGE_2,RESOURCE_ID_IMAGE_3,RESOURCE_ID_IMAGE_4,RESOURCE_ID_IMAGE_5,RESOURCE_ID_IMAGE_6,RESOURCE_ID_IMAGE_7,RESOURCE_ID_IMAGE_8,RESOURCE_ID_IMAGE_9,RESOURCE_ID_IMAGE_10,RESOURCE_ID_IMAGE_11,RESOURCE_ID_IMAGE_12,RESOURCE_ID_IMAGE_13,RESOURCE_ID_IMAGE_14,RESOURCE_ID_IMAGE_15,RESOURCE_ID_IMAGE_16,RESOURCE_ID_IMAGE_17,RESOURCE_ID_IMAGE_18,RESOURCE_ID_IMAGE_19,RESOURCE_ID_IMAGE_20,RESOURCE_ID_IMAGE_21,RESOURCE_ID_IMAGE_22,RESOURCE_ID_IMAGE_23};
 
 // used to pass bimap info to get/set pixel accurately
@@ -93,30 +96,37 @@ static void app_message_init(void) {
   app_message_open(100, 100);
 }
 
+static void implementation_update(Animation *animation,
+                                  const AnimationProgress progress) {
+  // Animate some completion variable
+  s_animation_percent = ((int)progress * 100) / ANIMATION_NORMALIZED_MAX;
+  layer_mark_dirty(background_layer);
+}
+
 static void background_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
   graphics_context_set_fill_color(ctx,GColorBlack);
   graphics_fill_rect(ctx,bounds,0,GCornerNone);
   
-  // get current time
-  time_t now = time(NULL);
-  struct tm *t = localtime(&now);
-  
   GRect frame = grect_inset(bounds, GEdgeInsets(-40));
   graphics_context_set_fill_color(ctx, GColorWhite);
   graphics_fill_radial(ctx, frame, GOvalScaleModeFillCircle, 130,
-                       DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE * t->tm_min / 60);
+                       DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE * s_minute * s_animation_percent / 6000);
   
-  // draw custom bitmap on top
-  uint8_t hour = t->tm_hour;
-  if(!clock_is_24h_style())
-  {
-    hour = hour%12;
-    if(hour==0)
-      hour=12;
+  if(s_hour != s_last_hour) {
+    // draw custom bitmap on top
+    uint8_t hour = s_hour;
+    if(!clock_is_24h_style())
+    {
+      hour = hour%12;
+      if(hour==0)
+        hour=12;
+    }
+    if(!number_bitmap)
+        gbitmap_destroy(number_bitmap);
+    number_bitmap = gbitmap_create_with_resource(resources[hour]);
+    s_last_hour = s_hour;
   }
-  number_bitmap = gbitmap_create_with_resource(resources[hour]);
-  
   GBitmap *fb = graphics_capture_frame_buffer(ctx);
   
   BitmapInfo bg_bitmap_info;
@@ -173,11 +183,13 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   
   // release things
   graphics_release_frame_buffer(ctx, fb);
-  gbitmap_destroy(number_bitmap);
+
 }
 
 
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
+  s_hour = tick_time->tm_hour;
+  s_minute = tick_time->tm_min;
   if(!nightstand_window_update())
     layer_mark_dirty(background_layer);
 }
@@ -191,11 +203,28 @@ static void window_load(Window *window) {
   layer_set_update_proc(background_layer, background_update_proc);
   layer_add_child(window_layer, background_layer);
   
+  // Create a new Animation
+  s_animation = animation_create();
+  animation_set_delay(s_animation, 100);
+  animation_set_duration(s_animation, 500);
+  
+  // Create the AnimationImplementation
+  static const AnimationImplementation implementation = {
+    .update = implementation_update
+  };
+  animation_set_implementation(s_animation, &implementation);
+  
   // force update
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
-  handle_tick(t, MINUTE_UNIT);
+  s_hour = t->tm_hour;
+  s_minute = t->tm_min;
+  s_animation_percent=0;
+  number_bitmap = NULL;
+  s_last_hour = -1;
+//  handle_tick(t, MINUTE_UNIT);
   tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
+  animation_schedule(s_animation);
 }
 
 static void window_unload(Window *window) {
