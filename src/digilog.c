@@ -32,9 +32,9 @@ void set_pixel(BitmapInfo bitmap_info, int y, int x, uint8_t color) {
   } else { // othersise (assuming GBitmapFormat8Bit) going byte-wise
     bitmap_info.bitmap_data[y*bitmap_info.bytes_per_row + x] = color;
   }
-    
+
 }
-  
+
   // get pixel color at given coordinates
   uint8_t get_pixel(BitmapInfo bitmap_info, int y, int x) {
   if (bitmap_info.bitmap_format == GBitmapFormat1Bit) { // for 1 bit bitmap on Aplite - shifting right to get bit
@@ -105,14 +105,21 @@ static void implementation_update(Animation *animation,
 
 static void background_update_proc(Layer *layer, GContext *ctx) {
   GRect bounds = layer_get_bounds(layer);
+  uint8_t offset_from_bottom = 0;
+#if PBL_API_EXISTS(layer_get_unobstructed_bounds)
+  GRect unobstructed_bounds = layer_get_unobstructed_bounds(layer);
+  // move everything up by half the obstruction
+  offset_from_bottom = (bounds.size.h - unobstructed_bounds.size.h) / 2;
+  bounds.origin.y-=offset_from_bottom;
+#endif
   graphics_context_set_fill_color(ctx,GColorBlack);
   graphics_fill_rect(ctx,bounds,0,GCornerNone);
-  
+
   GRect frame = grect_inset(bounds, GEdgeInsets(-40));
   graphics_context_set_fill_color(ctx, GColorWhite);
   graphics_fill_radial(ctx, frame, GOvalScaleModeFillCircle, 130,
                        DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE * s_minute * s_animation_percent / 6000);
-  
+
   if(s_hour != s_last_hour) {
     // draw custom bitmap on top
     uint8_t hour = s_hour;
@@ -128,22 +135,22 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
     s_last_hour = s_hour;
   }
   GBitmap *fb = graphics_capture_frame_buffer(ctx);
-  
+
   BitmapInfo bg_bitmap_info;
   bg_bitmap_info.bytes_per_row = gbitmap_get_bytes_per_row(number_bitmap);
   bg_bitmap_info.bitmap_data =  gbitmap_get_data(number_bitmap);
   bg_bitmap_info.bitmap_format = gbitmap_get_format(number_bitmap);
-  
+
 #ifdef PBL_PLATFORM_CHALK
   // Write a value to all visible pixels
-  for(int y = 0; y < bounds.size.h; y++) {
+  for(int y = 0; y < bounds.size.h-offset_from_bottom; y++) {
     // Get the min and max x values for this row
     GBitmapDataRowInfo info = gbitmap_get_data_row_info(fb, y);
-    
+
     // Iterate over visible pixels in that row
     for(int x = info.min_x; x < info.max_x; x++) {
       //memset(&info.data[x], GColorBlack.argb, 1);
-      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, y, x);
+      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, y+offset_from_bottom, x);
       uint8_t fb_pixel = info.data[x];
       if(bmp_pixel==0)
         memset(&info.data[x],gcolor_equal((GColor8)fb_pixel,GColorWhite)?colors[3].argb:colors[2].argb,1);
@@ -156,11 +163,11 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
   bitmap_info.bitmap_data =  gbitmap_get_data(fb);
   bitmap_info.bytes_per_row = gbitmap_get_bytes_per_row(fb);
   bitmap_info.bitmap_format = gbitmap_get_format(fb);
-  
-  for (int y=0; y<168; y++) {
-    for (int x=0; x<144; x++) {
+
+  for (int y=0; y<bounds.size.h-offset_from_bottom; y++) {
+    for (int x=0; x<bounds.size.w; x++) {
       // we only want to set black pixels in the bitmap
-      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, y, x);
+      uint8_t bmp_pixel = get_pixel(bg_bitmap_info, y+offset_from_bottom, x);
       if(bmp_pixel==0)
       {
         uint8_t fb_pixel = get_pixel(bitmap_info, y, x);
@@ -180,7 +187,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
     }
   }
 #endif
-  
+
   // release things
   graphics_release_frame_buffer(ctx, fb);
 
@@ -197,23 +204,23 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
-  
+
   // init background
   background_layer = layer_create(bounds);
   layer_set_update_proc(background_layer, background_update_proc);
   layer_add_child(window_layer, background_layer);
-  
+
   // Create a new Animation
   s_animation = animation_create();
   animation_set_delay(s_animation, 100);
   animation_set_duration(s_animation, 500);
-  
+
   // Create the AnimationImplementation
   static const AnimationImplementation implementation = {
     .update = implementation_update
   };
   animation_set_implementation(s_animation, &implementation);
-  
+
   // force update
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
@@ -241,11 +248,11 @@ static void init(void) {
     .unload = window_unload,
   });
   nightstand_window_init();
-  
+
   // Push the window onto the stack
   const bool animated = true;
   window_stack_push(window, animated);
-  
+
 }
 
 static void deinit(void) {
