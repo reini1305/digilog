@@ -117,7 +117,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
 
   GRect frame = grect_inset(bounds, GEdgeInsets(-40));
   graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_radial(ctx, frame, GOvalScaleModeFillCircle, 130,
+  graphics_fill_radial(ctx, frame, GOvalScaleModeFillCircle, 155,
                        DEG_TO_TRIGANGLE(0), TRIG_MAX_ANGLE * s_minute * s_animation_percent / 6000);
 
   if(s_hour != s_last_hour) {
