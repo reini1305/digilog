@@ -129,7 +129,7 @@ static void background_update_proc(Layer *layer, GContext *ctx) {
       if(hour==0)
         hour=12;
     }
-    if(!number_bitmap)
+    if(number_bitmap)
         gbitmap_destroy(number_bitmap);
     number_bitmap = gbitmap_create_with_resource(resources[hour]);
     s_last_hour = s_hour;
